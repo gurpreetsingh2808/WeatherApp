@@ -253,7 +253,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 
 
                 } else {
-                    getSnackbar("Couldn't get your location.").setAction("TRY AGAIN", new View.OnClickListener() {
+                    getSnackbar(getString(R.string.error_location)).setAction(getString(R.string.try_again), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             mGoogleApiClient.connect();

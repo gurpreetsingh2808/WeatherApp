@@ -5,4 +5,6 @@
     <string name="Empty">Empty</string>
     <string name="degree">\u00B0C</string>
     <string name="error">Sorry, could not get weather data.</string>
+    <string name="try_again">TRY AGAIN</string>
+    <string name="error_location">Couldn\'t get your location.</string>
 </resources>
