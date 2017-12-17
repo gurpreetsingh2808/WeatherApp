@@ -5,6 +5,7 @@ package com.spacelabs.weatherapp.ui.base;
  */
 
 import android.support.annotation.StringRes;
+import android.support.design.widget.Snackbar;
 
 import com.spacelabs.weatherapp.service.ApiErrorResponse;
 
@@ -28,9 +29,9 @@ public interface BaseMvpView {
 
     void onError(@StringRes int resId);
 
-    void showSnackbar(String message);
+    Snackbar getSnackbar(String message);
 
-    void showSnackbar(@StringRes int resId);
+    Snackbar getSnackbar(@StringRes int resId);
 
     boolean isNetworkConnected();
 

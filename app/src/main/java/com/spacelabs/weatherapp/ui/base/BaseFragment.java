@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -78,27 +79,29 @@ public abstract class BaseFragment extends Fragment implements BaseMvpView {
     }
 
     @Override
-    public void showSnackbar(String message) {
+    public Snackbar getSnackbar(String message) {
         if (mActivity != null) {
-            mActivity.showSnackbar(message);
+            return mActivity.getSnackbar(message);
         }
+        return null;
     }
 
     @Override
-    public void showSnackbar(@StringRes int resId) {
+    public Snackbar getSnackbar(@StringRes int resId) {
         if (mActivity != null) {
-            mActivity.showSnackbar(resId);
+            return mActivity.getSnackbar(resId);
         }
+        return null;
     }
 
     @Override
     public void onError(String message) {
-        showSnackbar(message);
+        getSnackbar(message);
     }
 
     @Override
     public void onError(@StringRes int resId) {
-        showSnackbar(resId);
+        getSnackbar(resId);
     }
 
     @Override

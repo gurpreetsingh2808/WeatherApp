@@ -1,6 +1,8 @@
 package com.spacelabs.weatherapp.ui.base;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.StringRes;
@@ -108,10 +110,18 @@ public abstract class BaseActivity extends AppCompatActivity
     @Override
     public void onApiError(final ApiErrorResponse apiErrorResponse) {
         //  Handle any unknown error
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
                 if (!BaseActivity.this.isFinishing()) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Error " + apiErrorResponse.getStatus_code())
+                            .setMessage("\n" + apiErrorResponse.getMessage())
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setCancelable(false)
+                            .create().show();
 //                    new MicroInteraction.Builder(BaseActivity.this)
 //                            .headerImage(R.drawable.failure)
 //                            .title(getString(R.string.popup_failure))
@@ -129,29 +139,27 @@ public abstract class BaseActivity extends AppCompatActivity
 //                            })
 //                            .show();
                 }
-            }
-        });
 
     }
 
     @Override
     public void onError(String message) {
-        showSnackbar(message);
+        getSnackbar(message).show();
     }
 
     @Override
     public void onError(@StringRes int resId) {
-        showSnackbar(resId);
+        getSnackbar(resId).show();
     }
 
     @Override
-    public void showSnackbar(String message) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
+    public Snackbar getSnackbar(String message) {
+        return Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG);
     }
 
     @Override
-    public void showSnackbar(@StringRes int resId) {
-        Snackbar.make(findViewById(android.R.id.content), getString(resId), Snackbar.LENGTH_LONG).show();
+    public Snackbar getSnackbar(@StringRes int resId) {
+        return Snackbar.make(findViewById(android.R.id.content), getString(resId), Snackbar.LENGTH_LONG);
     }
 
     @Override
