@@ -15,22 +15,33 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.spacelabs.weatherapp.domain.WeatherDataResponse;
 import com.spacelabs.weatherapp.framework.logger.Logger;
+import com.spacelabs.weatherapp.framework.util.StringUtil;
+import com.spacelabs.weatherapp.service.api.dto.WeatherDataResponse;
+import com.spacelabs.weatherapp.service.api.dto.WeatherForecastResponse;
 import com.spacelabs.weatherapp.ui.base.BaseActivity;
 import com.spacelabs.weatherapp.ui.main.MainPresenter;
 import com.spacelabs.weatherapp.ui.main.MainPresenterImpl;
+import com.spacelabs.weatherapp.ui.main.WeatherForecastAdapter;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import butterknife.BindView;
+import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, MainPresenter.View {
@@ -41,6 +52,20 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
             .setInterval(180000)         // in milliseconds
             .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     protected GoogleApiClient mGoogleApiClient;
+    @BindView(R.id.tvWeatherDescription)
+    TextView tvWeatherDescription;
+    @BindView(R.id.tvLocation)
+    TextView tvLocation;
+    @BindView(R.id.tvTemperature)
+    TextView tvTemperature;
+    @BindView(R.id.ivWeather)
+    ImageView ivWeather;
+    @BindView(R.id.rvWeatherForecast)
+    RecyclerView rvWeatherForecast;
+    @BindView(R.id.pbWeatherCurrent)
+    ProgressBar pbWeatherCurrent;
+    @BindView(R.id.pbWeatherForecast)
+    ProgressBar pbWeatherForecast;
     private Location mLastLocation;
     private LocationManager locationManager;
     private double latitude;
@@ -48,11 +73,13 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     private String subLocality = null;
     private Boolean isLocationPopupVisible = false;
     private MainPresenterImpl mainPresenterImpl;
+    private WeatherForecastAdapter weatherForecastAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        init();
         setUp();
     }
 
@@ -66,6 +93,9 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     protected void onStart() {
         super.onStart();
         //  wait for some time so that whether gps is enabled or not can be recognized
+//        showLoading();
+        pbWeatherCurrent.setVisibility(View.VISIBLE);
+        pbWeatherForecast.setVisibility(View.VISIBLE);
         Handler mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -76,6 +106,16 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
             }
         }, 1000);
     }
+
+    @OnClick(R.id.fabLocation)
+    void onLocationFabClick() {
+        if (mGoogleApiClient.isConnected()) {
+            getLocation();
+            pbWeatherForecast.setVisibility(View.VISIBLE);
+            pbWeatherCurrent.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     /**
      * Creating google api client object
@@ -144,6 +184,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
      */
     public void getLocation() {
         if (!isGPSEnabled()) {
+//            hideLoading();
             if (!isLocationPopupVisible) {
                 new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.need_location))
@@ -173,7 +214,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 
         else {
             Logger.d("check permissions");
-
+//            showLoading();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                     PackageManager.PERMISSION_DENIED && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_DENIED) {
@@ -188,13 +229,16 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
                         .getLastLocation(mGoogleApiClient);
 
                 if (mLastLocation != null) {
+//                    hideLoading();
                     latitude = mLastLocation.getLatitude();
                     longitude = mLastLocation.getLongitude();
 
                     Logger.d("getLocation: lat " + latitude);
                     Logger.d("getLocation: lng " + longitude);
 
+                    //  call to api
                     mainPresenterImpl.getWeatherInfo(String.valueOf(latitude), String.valueOf(longitude));
+                    mainPresenterImpl.getWeatherForecast(String.valueOf(latitude), String.valueOf(longitude));
 
                     Geocoder geocoder = new Geocoder(this, Locale.ENGLISH);
                     try {
@@ -224,11 +268,14 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 
     @Override
     protected void setUp() {
+        makeStatusBarTransparent();
         buildGoogleApiClient();
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
         mainPresenterImpl = new MainPresenterImpl(this);
+        rvWeatherForecast.setLayoutManager(new LinearLayoutManager(this));
+        rvWeatherForecast.setNestedScrollingEnabled(false);
     }
 
     @Override
@@ -238,11 +285,72 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 
     @Override
     public void onWeatherDataRetreivalSuccess(WeatherDataResponse weatherDataResponse) {
-
+        pbWeatherCurrent.setVisibility(View.GONE);
+        tvWeatherDescription.setText(weatherDataResponse.getWeather().get(0).getDescription());
+        tvTemperature.setText(String.valueOf(Math.round(weatherDataResponse.getMain().getTemp() - 273.15)) + getString(R.string.degree));
+        if (StringUtil.isNotBlank(weatherDataResponse.getName())) {
+            tvLocation.setText(weatherDataResponse.getName());
+        } else {
+            tvLocation.setText(subLocality);
+        }
+        int weatherId = weatherDataResponse.getWeather().get(0).getId();
+        //  thunderstorm
+        if (weatherId >= 200 && weatherId < 300) {
+//            ivWeather.setImageResource(R.id.);
+        }
+        //  drizzly
+        else if (weatherId >= 300 && weatherId < 400) {
+//            ivWeather.setImageResource(R.id.);
+        }
+        //  rain
+        else if (weatherId >= 500 && weatherId < 600) {
+            ivWeather.setImageResource(R.drawable.rain);
+        }
+        //  snow
+        else if (weatherId >= 600 && weatherId < 700) {
+            ivWeather.setImageResource(R.drawable.snow);
+        }
+        //  clear
+        else if (weatherId == 800) {
+            if (weatherDataResponse.getWeather().get(0).getIcon().equalsIgnoreCase("01n")) {
+                ivWeather.setImageResource(R.drawable.night);
+            } else {
+                ivWeather.setImageResource(R.drawable.sunny);
+            }
+        }
+        //  cloudy
+        else if (weatherId >= 801 && weatherId <= 804) {
+            ivWeather.setImageResource(R.drawable.cloudy);
+        }
+        // day or night
+        else {
+            if (weatherDataResponse.getWeather().get(0).getIcon().endsWith("n")) {
+                ivWeather.setImageResource(R.drawable.night);
+            } else {
+                ivWeather.setImageResource(R.drawable.sunny);
+            }
+        }
+        Logger.d("SUCCESS");
     }
 
     @Override
     public void onWeatherDataRetreivalFailure(Throwable throwable) {
+        pbWeatherCurrent.setVisibility(View.GONE);
+        Logger.e("ERROR " + throwable.fillInStackTrace());
+        getSnackbar(getString(R.string.error)).show();
+    }
 
+    @Override
+    public void onWeatherForecastRetreivalSuccess(WeatherForecastResponse weatherForecastResponse) {
+        pbWeatherForecast.setVisibility(View.GONE);
+        weatherForecastAdapter = new WeatherForecastAdapter(this, weatherForecastResponse.getList());
+        rvWeatherForecast.setAdapter(weatherForecastAdapter);
+    }
+
+
+    @Override
+    public void onWeatherForecastRetreivalFailure(Throwable throwable) {
+        pbWeatherForecast.setVisibility(View.GONE);
+        Logger.e("ERROR " + throwable.fillInStackTrace());
     }
 }

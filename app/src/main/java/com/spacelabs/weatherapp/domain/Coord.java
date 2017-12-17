@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class Coord {
 
-    private int lon;
-    private int lat;
+    private float lon;
+    private float lat;
 
 }

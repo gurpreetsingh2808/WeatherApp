@@ -1,5 +1,12 @@
 
-package com.spacelabs.weatherapp.domain;
+package com.spacelabs.weatherapp.service.api.dto;
+
+import com.spacelabs.weatherapp.domain.Clouds;
+import com.spacelabs.weatherapp.domain.Coord;
+import com.spacelabs.weatherapp.domain.Main;
+import com.spacelabs.weatherapp.domain.Sys;
+import com.spacelabs.weatherapp.domain.Weather;
+import com.spacelabs.weatherapp.domain.Wind;
 
 import java.util.List;
 

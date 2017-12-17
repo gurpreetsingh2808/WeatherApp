@@ -18,9 +18,11 @@ android {
         }
         buildTypes.each {
             it.buildConfigField 'String', 'BASE_URL', '"http://api.openweathermap.org/"'
+            it.buildConfigField 'String', 'BASE_URL_WEATHER_ICON', '"http://openweathermap.org/img/w/"'
             it.buildConfigField 'String', 'HEADING_FONT', '"fonts/Aquino.ttf"'
             it.buildConfigField 'String', 'BODY_FONT', '"fonts/Lato-Regular.ttf"'
             it.buildConfigField 'String', 'OPEN_WEATHER_MAP_API_KEY', '\"' + getOpenWeatherApiKey() + '\"'
+
         }
     }
 }
@@ -54,7 +56,5 @@ dependencies {
 
     compile "com.google.android.gms:play-services-base:11.0.4"
     compile 'com.google.android.gms:play-services-location:11.0.4'
-//    compile "com.google.android.gms:play-services-places:11.0.4"
-
+    compile 'com.github.bumptech.glide:glide:3.7.0'
 }
-//apply plugin: 'com.google.gms.google-services'
