@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WeatherApp</string>
+    <string name="need_location">NEED YOUR LOCATION</string>
+    <string name="need_location_desc">WeatherApp determines your phone\'s location in order to provide weather updates to you. This allows for a better overall app experience.</string>
 </resources>
