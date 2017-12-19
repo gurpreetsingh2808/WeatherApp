@@ -1,5 +1,7 @@
 package com.spacelabs.weatherapp;
 
+
+import com.spacelabs.weatherapp.database.WeatherDataHelper;
 import com.spacelabs.weatherapp.service.ResourceBuilder;
 import com.spacelabs.weatherapp.service.api.WeatherService;
 import com.spacelabs.weatherapp.service.api.dto.WeatherDataResponse;
@@ -23,8 +25,11 @@ public class WeatherServiceTest {
 
     @Mock
     MainPresenter.View view;
+
+
     private String latitude = "28.73";
     private String longitude = "77.13";
+    private WeatherDataHelper db;
 
 
     @Test
@@ -40,4 +45,5 @@ public class WeatherServiceTest {
             e.printStackTrace();
         }
     }
+
 }

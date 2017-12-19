@@ -13,6 +13,7 @@ public class MainPresenter {
 
     public interface View extends BaseMvpView {
         void onWeatherDataRetreivalSuccess(WeatherDataResponse weatherDataResponse);
+
         void onWeatherDataRetreivalFailure(Throwable throwable);
 
         void onWeatherForecastRetreivalSuccess(WeatherForecastResponse weatherForecastResponse);

@@ -7,4 +7,6 @@
     <string name="error">Sorry, could not get weather data.</string>
     <string name="try_again">TRY AGAIN</string>
     <string name="error_location">Couldn\'t get your location.</string>
+    <string name="permission_required">PERMISSION REQUIRED</string>
+    <string name="permission_required_desc">WeatherApp needs location permission in order to provide weather updates to you. Are you sure you want to deny WeatherApp of this permission?</string>
 </resources>

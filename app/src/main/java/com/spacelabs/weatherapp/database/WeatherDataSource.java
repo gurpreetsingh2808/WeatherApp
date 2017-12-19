@@ -1,0 +1,103 @@
+package com.spacelabs.weatherapp.database;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.spacelabs.weatherapp.domain.WeatherData;
+
+/**
+ * Created by Gurpreet on 19-12-2017.
+ */
+
+public class WeatherDataSource {
+    // Database fields
+    private SQLiteDatabase mDatabase;
+    private WeatherDataHelper mDbHelper;
+
+    public WeatherDataSource(Context context) {
+        mDbHelper = new WeatherDataHelper(context);
+    }
+
+    private void open() throws SQLException {
+        mDatabase = mDbHelper.getWritableDatabase();
+    }
+
+    private void read() throws SQLException {
+        mDatabase = mDbHelper.getReadableDatabase();
+    }
+
+    private void close() {
+        mDbHelper.close();
+    }
+
+    /**
+     * All CRUD(Create, Read, Update, Delete) Operations
+     */
+
+    // Adding new weather data
+    public void insertWeatherData(WeatherData weatherData) {
+        open();
+        ContentValues values = new ContentValues();
+        values.put(mDbHelper.getKEY_ID(), 0);
+        values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
+        values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
+        values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
+        values.put(mDbHelper.getKEY_LOCALITY(), weatherData.getLocality());
+        values.put(mDbHelper.getKEY_TEMPERATURE(), weatherData.getTemperature());
+        values.put(mDbHelper.getKEY_WEATHER_ID(), weatherData.getWeatherId());
+        values.put(mDbHelper.getKEY_WEATHER_ICON(), weatherData.getWeatherIcon());
+
+        // Inserting Row
+        mDatabase.insert(mDbHelper.getTABLE_WEATHER(), null, values);
+        close(); // Closing database connection
+    }
+
+    // Getting single weather data
+    public WeatherData getWeatherData(int id) {
+        read();
+        Cursor cursor = mDatabase.query(mDbHelper.getTABLE_WEATHER(), mDbHelper.getMAllColumns(), mDbHelper.getKEY_ID() + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
+
+        WeatherData weatherData = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            cursor.moveToFirst();
+            weatherData = new WeatherData(Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4),
+                    cursor.getString(5), Integer.parseInt(cursor.getString(6)), cursor.getString(7));
+            cursor.close();
+        }
+
+        return weatherData;
+    }
+
+    // Updating single weather data
+    public int updateWeatherData(WeatherData weatherData) {
+        open();
+        ContentValues values = new ContentValues();
+        values.put(mDbHelper.getKEY_ID(), 0);
+        values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
+        values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
+        values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
+        values.put(mDbHelper.getKEY_LOCALITY(), weatherData.getLocality());
+        values.put(mDbHelper.getKEY_TEMPERATURE(), weatherData.getTemperature());
+        values.put(mDbHelper.getKEY_WEATHER_ID(), weatherData.getWeatherId());
+        values.put(mDbHelper.getKEY_WEATHER_ICON(), weatherData.getWeatherIcon());
+
+        // updating row
+        return mDatabase.update(mDbHelper.getTABLE_WEATHER(), values, mDbHelper.getKEY_ID() + " = ?", new String[]{String.valueOf(weatherData.getId())});
+
+    }
+
+    // Deleting single weather data
+    public void deleteWeatherData(int id) {
+        open();
+        mDatabase.delete(mDbHelper.getTABLE_WEATHER(), mDbHelper.getKEY_ID() + " = ?",
+                new String[]{String.valueOf(id)});
+        close();
+    }
+
+
+}

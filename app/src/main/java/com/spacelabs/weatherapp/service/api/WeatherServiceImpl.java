@@ -10,7 +10,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * Created by Gurpreet on 22-11-2017.
+ * Created by Gurpreet on 17-12-2017.
  */
 
 public class WeatherServiceImpl implements WeatherService {

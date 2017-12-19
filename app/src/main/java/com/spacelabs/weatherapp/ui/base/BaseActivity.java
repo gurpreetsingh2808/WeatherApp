@@ -3,7 +3,6 @@ package com.spacelabs.weatherapp.ui.base;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
@@ -25,7 +24,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  */
 
 public abstract class BaseActivity extends AppCompatActivity
-        implements BaseMvpView, BaseFragment.Callback {
+        implements BaseMvpView {
 
     private android.app.ProgressDialog progressDialog;
 
@@ -54,35 +53,11 @@ public abstract class BaseActivity extends AppCompatActivity
         }
     }
 
-    public void setStatusBarColorToWhite() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(Color.WHITE);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-//                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            getWindow().setStatusBarColor(Color.WHITE);
-        }
-    }
-
     public void makeStatusBarTransparent() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             // Set the status bar to dark-semi-transparentish
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
-    }
-
-    public void invertStatusBarIconColor(boolean shouldChangeStatusBarTintToDark) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            View decor = getWindow().getDecorView();
-            if (shouldChangeStatusBarTintToDark) {
-                decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            } else {
-                // We want to change tint color to white again.
-                // You can also record the flags in advance so that you can turn UI back completely if
-                // you have set other flags before, such as translucent or full screen.
-                decor.setSystemUiVisibility(0);
-            }
         }
     }
 
@@ -122,22 +97,6 @@ public abstract class BaseActivity extends AppCompatActivity
                             })
                             .setCancelable(false)
                             .create().show();
-//                    new MicroInteraction.Builder(BaseActivity.this)
-//                            .headerImage(R.drawable.failure)
-//                            .title(getString(R.string.popup_failure))
-//                            .content(apiErrorResponse.getMessage())
-//                            .cancelable(false, false)
-//                            .animation(AnimUtils.AnimDown)
-//                            .typefaceTitle(ApplicationConstants.HEADING_FONT)
-//                            .typefaceContent(ApplicationConstants.BODY_FONT)
-//                            .typefacePositiveButton(ApplicationConstants.HEADING_FONT)
-//                            .positiveButton("OKAY", new MicroInteraction.onPositiveListener() {
-//                                @Override
-//                                public void onPositive(Dialog dialog) {
-//                                    dialog.cancel();
-//                                }
-//                            })
-//                            .show();
                 }
 
     }
@@ -177,27 +136,7 @@ public abstract class BaseActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onFragmentAttached() {
-
-    }
-
-    @Override
-    public void onFragmentDetached(String tag) {
-
-    }
-
     protected abstract void setUp();
-
-
-//    @Override
-//    public void onBackPressed() {
-//        if (this.isTaskRoot()) {
-//            FlowManager.moveToHomeActivity(this);
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
 
 
 }
