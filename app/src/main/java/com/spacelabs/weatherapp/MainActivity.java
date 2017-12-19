@@ -109,7 +109,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         //  wait for some time so that whether gps is enabled or not can be recognized
 //        showLoading();
         WeatherData weatherData = db.getWeatherData(0);
-        if (weatherData == null) {
+        if (weatherData == null || isNetworkConnected()) {
             pbWeatherCurrent.setVisibility(View.VISIBLE);
             Handler mHandler = new Handler();
             mHandler.postDelayed(new Runnable() {
@@ -126,6 +126,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
             pbWeatherForecast.setVisibility(View.VISIBLE);
             mainPresenterImpl.getWeatherForecast(weatherData.getLatitude(), weatherData.getLongitude());
         }
+
     }
 
 
@@ -375,6 +376,14 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         else if (weatherId >= 600 && weatherId < 700) {
             ivWeather.setImageResource(R.drawable.snow);
         }
+        //  fog or mist
+        else if (weatherId == 701 || weatherId == 741) {
+            ivWeather.setImageResource(R.drawable.foggy);
+        }
+        //  smoke or haze
+        else if (weatherId == 711 || weatherId == 721) {
+            ivWeather.setImageResource(R.drawable.foggy);
+        }
         //  clear
         else if (weatherId == 800) {
             if (weatherIcon.equalsIgnoreCase("01n")) {
@@ -404,8 +413,10 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
                 weatherDataResponse.getWeather().get(0).getId(), weatherDataResponse.getWeather().get(0).getIcon());
         if (db.getWeatherData(0) == null) {
             db.insertWeatherData(weatherData);
+            Logger.d("SAVE WEATHER DATA");
         } else {
-            db.updateWeatherData(weatherData);
+            int status = db.updateWeatherData(weatherData);
+            Logger.d("UPDATE STATUS " + status);
         }
     }
 

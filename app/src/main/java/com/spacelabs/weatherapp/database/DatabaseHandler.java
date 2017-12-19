@@ -117,7 +117,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_WEATHER_ICON, weatherData.getWeatherIcon());
 
         // updating row
-        return db.update(TABLE_WEATHER, values, KEY_ID + " = ?", null);
+        return db.update(TABLE_WEATHER, values, KEY_ID + " = ?", new String[]{String.valueOf(weatherData.getId())});
 
     }
 
