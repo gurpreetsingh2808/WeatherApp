@@ -60,10 +60,6 @@ public class WeatherForecastAdapter extends RecyclerView.Adapter<WeatherForecast
         return listWeatherForecasts.size();
     }
 
-//    public void setClickListener(CategoryItemClickListener clickListener) {
-//        this.clickListener = clickListener;
-//    }
-
     class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tvDay)
         TextView tvDay;
@@ -77,20 +73,8 @@ public class WeatherForecastAdapter extends RecyclerView.Adapter<WeatherForecast
 
         ViewHolder(View itemView) {
             super(itemView);
-//            itemView.setOnClickListener(this);
             ButterKnife.bind(this, itemView);
         }
-
-//        @Override
-//        public void onClick(View v) {
-//            if (clickListener != null) {
-//                clickListener.categoryClicked(v, getAdapterPosition(), listWeatherForecasts.get(getAdapterPosition()));
-//            }
-//
-////            notifyItemChanged(selectedPosition);
-////            selectedPosition= getLayoutPosition();
-////            notifyItemChanged(selectedPosition);
-//        }
 
         private void setData(final WeatherDataResponse weatherForecastResponse, int position) {
             gregorianCalendar.set(GregorianCalendar.DAY_OF_WEEK, gregorianCalendar.get(GregorianCalendar.DAY_OF_WEEK) + 1);

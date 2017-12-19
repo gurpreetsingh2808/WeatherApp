@@ -27,6 +27,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.spacelabs.weatherapp.database.DatabaseHandler;
+import com.spacelabs.weatherapp.domain.WeatherData;
 import com.spacelabs.weatherapp.framework.logger.Logger;
 import com.spacelabs.weatherapp.framework.util.StringUtil;
 import com.spacelabs.weatherapp.service.api.dto.WeatherDataResponse;
@@ -52,16 +54,20 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
             .setInterval(180000)         // in milliseconds
             .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     protected GoogleApiClient mGoogleApiClient;
+    //  Textviews
     @BindView(R.id.tvWeatherDescription)
     TextView tvWeatherDescription;
     @BindView(R.id.tvLocation)
     TextView tvLocation;
     @BindView(R.id.tvTemperature)
     TextView tvTemperature;
+    //  Image view
     @BindView(R.id.ivWeather)
     ImageView ivWeather;
+    //  Recycler view
     @BindView(R.id.rvWeatherForecast)
     RecyclerView rvWeatherForecast;
+    //  Progress bar
     @BindView(R.id.pbWeatherCurrent)
     ProgressBar pbWeatherCurrent;
     @BindView(R.id.pbWeatherForecast)
@@ -74,6 +80,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     private Boolean isLocationPopupVisible = false;
     private MainPresenterImpl mainPresenterImpl;
     private WeatherForecastAdapter weatherForecastAdapter;
+    private DatabaseHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,10 +90,17 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         setUp();
     }
 
-    private Boolean isGPSEnabled() {
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    @Override
+    protected void setUp() {
+        makeStatusBarTransparent();
+        db = new DatabaseHandler(this);
+        buildGoogleApiClient();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+        mainPresenterImpl = new MainPresenterImpl(this);
+        rvWeatherForecast.setLayoutManager(new LinearLayoutManager(this));
+        rvWeatherForecast.setNestedScrollingEnabled(false);
     }
 
     @Override
@@ -94,41 +108,26 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         super.onStart();
         //  wait for some time so that whether gps is enabled or not can be recognized
 //        showLoading();
-        pbWeatherCurrent.setVisibility(View.VISIBLE);
-        pbWeatherForecast.setVisibility(View.VISIBLE);
-        Handler mHandler = new Handler();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mGoogleApiClient.isConnected()) {
-                    getLocation();
-                }
-            }
-        }, 1000);
-    }
-
-    @OnClick(R.id.fabLocation)
-    void onLocationFabClick() {
-        if (mGoogleApiClient.isConnected()) {
-            getLocation();
-            pbWeatherForecast.setVisibility(View.VISIBLE);
+        WeatherData weatherData = db.getWeatherData(0);
+        if (weatherData == null) {
             pbWeatherCurrent.setVisibility(View.VISIBLE);
+            Handler mHandler = new Handler();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (mGoogleApiClient.isConnected()) {
+                        getLocation();
+                    }
+                }
+            }, 1000);
+        } else {
+            populateWeatherData(weatherData.getDescription(), weatherData.getTemperature() + getString(R.string.degree),
+                    weatherData.getLocality(), weatherData.getWeatherId(), weatherData.getWeatherIcon());
+            pbWeatherForecast.setVisibility(View.VISIBLE);
+            mainPresenterImpl.getWeatherForecast(weatherData.getLatitude(), weatherData.getLongitude());
         }
     }
 
-
-    /**
-     * Creating google api client object
-     */
-    protected synchronized void buildGoogleApiClient() {
-
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API).build();
-        }
-    }
 
     /**
      * Method to fetch the location when google api client is connected
@@ -176,6 +175,69 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
                 + connectionResult.getErrorCode());
 
         getSnackbar("Could not connect to Google API Client: Error " + connectionResult.getErrorCode()).show();
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getLocation();
+                } else {
+                    new AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.permission_required))
+                            .setMessage("\n" + getString(R.string.permission_required_desc))
+                            .setPositiveButton("ASK AGAIN", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    isLocationPopupVisible = false;
+                                    ActivityCompat.requestPermissions(MainActivity.this, new String[]
+                                                    {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                                            PERMISSION_REQUEST_CODE);
+                                }
+                            })
+                            .setNegativeButton("I'M SURE", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    finish();
+                                }
+                            })
+                            .setCancelable(false)
+                            .create().show();
+                    isLocationPopupVisible = true;
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    /**
+     * Creating google api client object
+     */
+    protected synchronized void buildGoogleApiClient() {
+
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API).build();
+        }
+    }
+
+    private Boolean isGPSEnabled() {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
 
@@ -266,34 +328,37 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         }
     }
 
-    @Override
-    protected void setUp() {
-        makeStatusBarTransparent();
-        buildGoogleApiClient();
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
+
+    @OnClick(R.id.fabLocation)
+    void onLocationFabClick() {
+        if (mGoogleApiClient.isConnected()) {
+            getLocation();
+            pbWeatherForecast.setVisibility(View.VISIBLE);
+            pbWeatherCurrent.setVisibility(View.VISIBLE);
         }
-        mainPresenterImpl = new MainPresenterImpl(this);
-        rvWeatherForecast.setLayoutManager(new LinearLayoutManager(this));
-        rvWeatherForecast.setNestedScrollingEnabled(false);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
     }
 
     @Override
     public void onWeatherDataRetreivalSuccess(WeatherDataResponse weatherDataResponse) {
+        populateWeatherData(weatherDataResponse.getWeather().get(0).getDescription(),
+                String.valueOf(Math.round(weatherDataResponse.getMain().getTemp() - 273.15)) + getString(R.string.degree),
+                weatherDataResponse.getName(), weatherDataResponse.getWeather().get(0).getId(),
+                weatherDataResponse.getWeather().get(0).getIcon());
+
+        Logger.d("SUCCESS");
+        saveToDb(weatherDataResponse);
+    }
+
+    private void populateWeatherData(String weatherDescription, String weatherTemp, String locality, int weatherId, String weatherIcon) {
         pbWeatherCurrent.setVisibility(View.GONE);
-        tvWeatherDescription.setText(weatherDataResponse.getWeather().get(0).getDescription());
-        tvTemperature.setText(String.valueOf(Math.round(weatherDataResponse.getMain().getTemp() - 273.15)) + getString(R.string.degree));
-        if (StringUtil.isNotBlank(weatherDataResponse.getName())) {
-            tvLocation.setText(weatherDataResponse.getName());
+        tvWeatherDescription.setText(weatherDescription);
+        tvTemperature.setText(weatherTemp);
+        if (StringUtil.isNotBlank(locality)) {
+            subLocality = locality;
+            tvLocation.setText(locality);
         } else {
             tvLocation.setText(subLocality);
         }
-        int weatherId = weatherDataResponse.getWeather().get(0).getId();
         //  thunderstorm
         if (weatherId >= 200 && weatherId < 300) {
 //            ivWeather.setImageResource(R.id.);
@@ -312,7 +377,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         }
         //  clear
         else if (weatherId == 800) {
-            if (weatherDataResponse.getWeather().get(0).getIcon().equalsIgnoreCase("01n")) {
+            if (weatherIcon.equalsIgnoreCase("01n")) {
                 ivWeather.setImageResource(R.drawable.night);
             } else {
                 ivWeather.setImageResource(R.drawable.sunny);
@@ -324,13 +389,24 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         }
         // day or night
         else {
-            if (weatherDataResponse.getWeather().get(0).getIcon().endsWith("n")) {
+            if (weatherIcon.endsWith("n")) {
                 ivWeather.setImageResource(R.drawable.night);
             } else {
                 ivWeather.setImageResource(R.drawable.sunny);
             }
         }
-        Logger.d("SUCCESS");
+    }
+
+    private void saveToDb(WeatherDataResponse weatherDataResponse) {
+        WeatherData weatherData = new WeatherData(0, weatherDataResponse.getWeather().get(0).getDescription(),
+                String.valueOf(weatherDataResponse.getCoord().getLat()), String.valueOf(weatherDataResponse.getCoord().getLon()),
+                subLocality, String.valueOf(Math.round(weatherDataResponse.getMain().getTemp() - 273.15)),
+                weatherDataResponse.getWeather().get(0).getId(), weatherDataResponse.getWeather().get(0).getIcon());
+        if (db.getWeatherData(0) == null) {
+            db.insertWeatherData(weatherData);
+        } else {
+            db.updateWeatherData(weatherData);
+        }
     }
 
     @Override
@@ -353,4 +429,5 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         pbWeatherForecast.setVisibility(View.GONE);
         Logger.e("ERROR " + throwable.fillInStackTrace());
     }
+
 }

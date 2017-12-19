@@ -22,7 +22,7 @@ android {
             it.buildConfigField 'String', 'HEADING_FONT', '"fonts/Aquino.ttf"'
             it.buildConfigField 'String', 'BODY_FONT', '"fonts/Lato-Regular.ttf"'
             it.buildConfigField 'String', 'OPEN_WEATHER_MAP_API_KEY', '\"' + getOpenWeatherApiKey() + '\"'
-
+            it.buildConfigField 'String', 'DATABASE_NAME', '"weatherDb"'
         }
     }
 }
@@ -58,4 +58,5 @@ dependencies {
     compile "com.google.android.gms:play-services-base:11.0.4"
     compile 'com.google.android.gms:play-services-location:11.0.4'
     compile 'com.github.bumptech.glide:glide:3.7.0'
+
 }

@@ -13,8 +13,6 @@ import java.util.Locale;
  */
 public final class ApplicationConstants {
 
-    // The default encoding of the app
-    public static final String DEFAULT_ENCODING = "UTF-8";
     // The default Locale of the app
     public static final String DEFAULT_LOCALE_KEY = Locale.getDefault().toString();
     // The name of the application platform

@@ -1,14 +1,11 @@
 package com.spacelabs.weatherapp.service.interceptor;
 
-import android.app.Activity;
-
 import com.google.gson.Gson;
 import com.spacelabs.weatherapp.framework.logger.Logger;
 import com.spacelabs.weatherapp.service.ApiErrorResponse;
 import com.spacelabs.weatherapp.ui.base.BaseMvpView;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -24,14 +21,8 @@ public class ErrorInterceptor implements okhttp3.Interceptor {
     // The name of the TAG
     public String TAG = ErrorInterceptor.class.getSimpleName();
     private BaseMvpView baseMvpView;
-    // The instance of activity
-    private WeakReference<Activity> activity;
 
     // The public constructor of the class
-    public ErrorInterceptor(Activity activity) {
-        this.activity = new WeakReference<>(activity);
-    }
-
     public ErrorInterceptor(BaseMvpView baseMvpView) {
         this.baseMvpView = baseMvpView;
     }
