@@ -27,7 +27,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.spacelabs.weatherapp.database.DatabaseHandler;
+import com.spacelabs.weatherapp.database.WeatherDataSource;
 import com.spacelabs.weatherapp.domain.WeatherData;
 import com.spacelabs.weatherapp.framework.logger.Logger;
 import com.spacelabs.weatherapp.framework.util.StringUtil;
@@ -80,7 +80,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     private Boolean isLocationPopupVisible = false;
     private MainPresenterImpl mainPresenterImpl;
     private WeatherForecastAdapter weatherForecastAdapter;
-    private DatabaseHandler db;
+    private WeatherDataSource db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +93,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     @Override
     protected void setUp() {
         makeStatusBarTransparent();
-        db = new DatabaseHandler(this);
+        db = new WeatherDataSource(this);
         buildGoogleApiClient();
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
