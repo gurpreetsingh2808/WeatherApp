@@ -29,7 +29,6 @@
                 android:adjustViewBounds="true"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/sunny"
                 app:layout_collapseMode="parallax" />
 
 
@@ -100,11 +99,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:elevation="7dp"
-        android:src="@drawable/ic_refresh"
         app:backgroundTint="@color/colorAccent"
+        app:elevation="7dp"
         app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|end" />
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/ic_refresh" />
 
 
 </android.support.design.widget.CoordinatorLayout>
