@@ -425,13 +425,11 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
             Logger.d("SAVE WEATHER DATA");
         }
         // only insert/save data if current temperature is different from last saved temp
-        // and the day of last saved weather data is same as today
-        else if (!(Long.valueOf(db.getLatestWeatherData().getTemperature()) == temp)) {
-            if (!today.equalsIgnoreCase(db.getLatestWeatherData().getDay())) {
+        // and the day of last saved weather data is not same as current day
+        else if (!(Long.valueOf(db.getLatestWeatherData().getTemperature()) == temp) || !today.equalsIgnoreCase(db.getLatestWeatherData().getDay())) {
                 db.insertWeatherData(weatherData);
                 weatherHistoryAdapter.insert(weatherData);
                 Logger.d("SAVE WEATHER DATA");
-            }
         }
     }
 
