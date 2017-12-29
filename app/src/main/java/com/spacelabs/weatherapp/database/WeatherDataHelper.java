@@ -48,7 +48,7 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_WEATHER_TABLE = "CREATE TABLE " + TABLE_WEATHER + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_WEATHER_DESCRIPTION + " TEXT," + KEY_LATITUDE + " TEXT,"
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," + KEY_WEATHER_DESCRIPTION + " TEXT," + KEY_LATITUDE + " TEXT,"
                 + KEY_LONGITUDE + " TEXT," + KEY_LOCALITY + " TEXT," + KEY_TEMPERATURE + " TEXT,"
                 + KEY_WEATHER_ID + " INTEGER," + KEY_WEATHER_ICON + " TEXT" + ")";
         db.execSQL(CREATE_WEATHER_TABLE);

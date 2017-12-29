@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.spacelabs.weatherapp.framework.util.AppUtils;
+
 /**
  * Created by Gurpreet on 15-12-2017.
  */
@@ -11,8 +13,8 @@ import android.widget.Toast;
 public class Logger {
 
     private static final String TAG = Logger.class.getSimpleName();
-    //    private static Boolean flag = !AppUtils.isProductionBuild();
-    private static Boolean flag = true;
+    private static Boolean flag = !AppUtils.isProductionBuild();
+//    private static Boolean flag = true;
 
     /**
      * To avoid printing stacktraces in debug builds and report caught exceptions in production/release build
@@ -23,9 +25,7 @@ public class Logger {
         if (flag) {
             throwable.printStackTrace();
         } else {
-//            FirebaseCrash.log(SharedPreferenceData.getInstance().getUsername() + " - "
-//                    + SharedPreferenceData.getInstance().getEmail());
-//            FirebaseCrash.report(new Error(throwable.fillInStackTrace()));
+//            Report crash
         }
     }
 
@@ -68,12 +68,8 @@ public class Logger {
 
     private static String getMessage(String msg) {
         StackTraceElement element = getElement();
-        //String fileName = element.getFileName();
         int lineNumber = element.getLineNumber();
         String methodName = element.getMethodName();
-
-//            Log.d(tag, "(file name : " + fileName + ",  class name : " + className +
-//                    ",  line number : " + lineNumber + ",  method name : " + methodName + ") :" + statement);
         return "line : " + lineNumber + ",  method : " + methodName + "(), MSG : " + msg;
     }
 

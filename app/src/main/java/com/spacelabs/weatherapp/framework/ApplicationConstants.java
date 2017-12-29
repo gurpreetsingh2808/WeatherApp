@@ -28,6 +28,4 @@ public final class ApplicationConstants {
     private ApplicationConstants() {
     }
 
-    // The body font italic
-//    public static final String BODY_FONT_ITALIC = BuildConfig.BODY_FONT_ITALIC;
 }

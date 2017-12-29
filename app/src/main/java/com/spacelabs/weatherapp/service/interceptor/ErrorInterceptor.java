@@ -51,7 +51,6 @@ public class ErrorInterceptor implements okhttp3.Interceptor {
             return response;
         } catch (SocketTimeoutException e) {
             Logger.e("Exception " + e.fillInStackTrace());
-            //SnackBarManager.renderNetworkIssueSnackBar(activity.get());
             return new Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(HttpURLConnection.HTTP_OK).build();
         } catch (UnknownHostException e) {
             Logger.e("Exception " + e.fillInStackTrace());

@@ -16,6 +16,7 @@ import retrofit2.http.Query;
 
 public interface WeatherService {
 
+
     /**
      * Current weather data model
      */
@@ -35,6 +36,7 @@ public interface WeatherService {
         Call<WeatherForecastResponse> getWeatherForecast(@Query("lat") String latitude, @Query("lon") String longitude);
 
     }
+
 
     interface GetWeatherDataCallback {
         void onSuccess(WeatherDataResponse weatherDataResponse);
