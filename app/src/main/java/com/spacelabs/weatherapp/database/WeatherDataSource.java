@@ -98,7 +98,7 @@ public class WeatherDataSource {
     public List<WeatherData> getAllWeatherData() {
         List<WeatherData> listWeatherData = new ArrayList<WeatherData>();
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + mDbHelper.getTABLE_WEATHER() + "ORDER BY " + mDbHelper.getKEY_ID() + "desc";
+        String selectQuery = "SELECT  * FROM " + mDbHelper.getTABLE_WEATHER() + " ORDER BY " + mDbHelper.getKEY_ID() + " desc";
         open();
         Cursor cursor = mDatabase.rawQuery(selectQuery, null);
         // looping through all rows and adding to list
