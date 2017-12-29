@@ -7,7 +7,7 @@
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/ivWeatherIcon"
-        android:layout_width="wrap_content"
+        android:layout_width="44dp"
         android:layout_height="match_parent" />
 
     <TextView

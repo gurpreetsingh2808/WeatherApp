@@ -44,7 +44,6 @@ public class WeatherDataSource {
     public void insertWeatherData(WeatherData weatherData) {
         open();
         ContentValues values = new ContentValues();
-//        values.put(mDbHelper.getKEY_ID(), 0);
         values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
         values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
         values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
@@ -67,7 +66,7 @@ public class WeatherDataSource {
         WeatherData weatherData = null;
         if (cursor != null && cursor.moveToFirst()) {
             cursor.moveToFirst();
-            weatherData = new WeatherData(//Integer.parseInt(cursor.getString(0)),
+            weatherData = new WeatherData(
                     cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4),
                     cursor.getString(5), Integer.parseInt(cursor.getString(6)), cursor.getString(7));
             cursor.close();
@@ -104,7 +103,7 @@ public class WeatherDataSource {
         // looping through all rows and adding to list
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                WeatherData weatherData = new WeatherData(//Integer.parseInt(cursor.getString(0)),
+                WeatherData weatherData = new WeatherData(
                         cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4),
                         cursor.getString(5), Integer.parseInt(cursor.getString(6)), cursor.getString(7));
                 // Adding weather to list
@@ -120,22 +119,21 @@ public class WeatherDataSource {
     }
 
     // Updating single weather data
-//    public int updateWeatherData(WeatherData weatherData) {
-//        open();
-//        ContentValues values = new ContentValues();
-////        values.put(mDbHelper.getKEY_ID(), 0);
-//        values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
-//        values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
-//        values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
-//        values.put(mDbHelper.getKEY_LOCALITY(), weatherData.getLocality());
-//        values.put(mDbHelper.getKEY_TEMPERATURE(), weatherData.getTemperature());
-//        values.put(mDbHelper.getKEY_WEATHER_ID(), weatherData.getWeatherId());
-//        values.put(mDbHelper.getKEY_WEATHER_ICON(), weatherData.getWeatherIcon());
-//
-//        // updating row
-//        return mDatabase.update(mDbHelper.getTABLE_WEATHER(), values, mDbHelper.getKEY_ID() + " = ?", new String[]{String.valueOf(weatherData.getId())});
-//
-//    }
+    public int updateWeatherData(WeatherData weatherData, int id) {
+        open();
+        ContentValues values = new ContentValues();
+        values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
+        values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
+        values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
+        values.put(mDbHelper.getKEY_LOCALITY(), weatherData.getLocality());
+        values.put(mDbHelper.getKEY_TEMPERATURE(), weatherData.getTemperature());
+        values.put(mDbHelper.getKEY_WEATHER_ID(), weatherData.getWeatherId());
+        values.put(mDbHelper.getKEY_WEATHER_ICON(), weatherData.getWeatherIcon());
+
+        // updating row
+        return mDatabase.update(mDbHelper.getTABLE_WEATHER(), values, mDbHelper.getKEY_ID() + " = ?", new String[]{String.valueOf(id)});
+
+    }
 
     // Deleting single weather data
     public void deleteWeatherData(int id) {
