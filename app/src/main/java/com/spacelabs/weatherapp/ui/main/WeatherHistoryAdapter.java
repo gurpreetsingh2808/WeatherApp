@@ -12,10 +12,7 @@ import com.spacelabs.weatherapp.R;
 import com.spacelabs.weatherapp.domain.WeatherData;
 import com.spacelabs.weatherapp.framework.ImageLoader;
 import com.spacelabs.weatherapp.framework.logger.Logger;
-import com.spacelabs.weatherapp.framework.util.DateUtil;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,8 +26,6 @@ public class WeatherHistoryAdapter extends RecyclerView.Adapter<WeatherHistoryAd
     private List<WeatherData> listWeatherHistory;
     private LayoutInflater inflater;
     private Context context;
-    private GregorianCalendar gregorianCalendar = new GregorianCalendar();
-    private DateUtil dateUtil = new DateUtil();
 
 
     public WeatherHistoryAdapter(Context context, List<WeatherData> listWeatherHistory) {
@@ -70,15 +65,14 @@ public class WeatherHistoryAdapter extends RecyclerView.Adapter<WeatherHistoryAd
         @BindView(R.id.ivWeatherIcon)
         AppCompatImageView ivWeatherIcon;
 
-
         ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
         private void setData(final WeatherData weatherHistory, int position) {
-//            gregorianCalendar.set(GregorianCalendar.DAY_OF_WEEK, gregorianCalendar.get(GregorianCalendar.DAY_OF_WEEK) + 1);
-            tvDay.setText(dateUtil.getDayName(gregorianCalendar.get(Calendar.DAY_OF_WEEK)));
+            Logger.d("DAYYYYY " + weatherHistory.getDay());
+            tvDay.setText(weatherHistory.getDay());
             tvTemperature.setText(weatherHistory.getTemperature() + context.getString(R.string.degree));
             tvTemperatureDescription.setText(weatherHistory.getDescription());
             ImageLoader.loadImage(context, weatherHistory.getWeatherIcon(), ivWeatherIcon);

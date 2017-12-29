@@ -23,7 +23,7 @@ public class DatabaseTest {
 
     @Test
     public void testInsertWeatherData() throws Exception {
-        WeatherData weatherData = new WeatherData("Clear sky", "28.73", "77.13",
+        WeatherData weatherData = new WeatherData("Sunday", "Clear sky", "28.73", "77.13",
                 "Delhi", "15", 800, "01d");
         weatherDataSource.insertWeatherData(weatherData);
     }
@@ -35,7 +35,7 @@ public class DatabaseTest {
 
     @Test
     public void testUpdateWeatherData() throws Exception {
-        WeatherData weatherData = new WeatherData("Foggy", "28.73", "77.13",
+        WeatherData weatherData = new WeatherData("Monday", "Foggy", "28.73", "77.13",
                 "Rohini", "15", 800, "01n");
         weatherDataSource.updateWeatherData(weatherData, 0);
     }

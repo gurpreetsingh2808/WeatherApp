@@ -44,6 +44,7 @@ public class WeatherDataSource {
     public void insertWeatherData(WeatherData weatherData) {
         open();
         ContentValues values = new ContentValues();
+        values.put(mDbHelper.getKEY_DAY(), weatherData.getDay());
         values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
         values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
         values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
@@ -66,9 +67,9 @@ public class WeatherDataSource {
         WeatherData weatherData = null;
         if (cursor != null && cursor.moveToFirst()) {
             cursor.moveToFirst();
-            weatherData = new WeatherData(
-                    cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4),
-                    cursor.getString(5), Integer.parseInt(cursor.getString(6)), cursor.getString(7));
+            weatherData = new WeatherData(cursor.getString(1),
+                    cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                    cursor.getString(6), Integer.parseInt(cursor.getString(7)), cursor.getString(8));
             cursor.close();
         }
 
@@ -83,9 +84,9 @@ public class WeatherDataSource {
         WeatherData weatherData = null;
         if (cursor != null && cursor.moveToFirst()) {
             cursor.moveToFirst();
-            weatherData = new WeatherData(//Integer.parseInt(cursor.getString(0)),
-                    cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4),
-                    cursor.getString(5), Integer.parseInt(cursor.getString(6)), cursor.getString(7));
+            weatherData = new WeatherData(cursor.getString(1),
+                    cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                    cursor.getString(6), Integer.parseInt(cursor.getString(7)), cursor.getString(8));
             cursor.close();
         }
 
@@ -103,9 +104,9 @@ public class WeatherDataSource {
         // looping through all rows and adding to list
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                WeatherData weatherData = new WeatherData(
-                        cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4),
-                        cursor.getString(5), Integer.parseInt(cursor.getString(6)), cursor.getString(7));
+                WeatherData weatherData = new WeatherData(cursor.getString(1),
+                        cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                        cursor.getString(6), Integer.parseInt(cursor.getString(7)), cursor.getString(8));
                 // Adding weather to list
                 listWeatherData.add(weatherData);
             } while (cursor.moveToNext());
@@ -122,6 +123,7 @@ public class WeatherDataSource {
     public int updateWeatherData(WeatherData weatherData, int id) {
         open();
         ContentValues values = new ContentValues();
+        values.put(mDbHelper.getKEY_DAY(), weatherData.getDay());
         values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
         values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
         values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());

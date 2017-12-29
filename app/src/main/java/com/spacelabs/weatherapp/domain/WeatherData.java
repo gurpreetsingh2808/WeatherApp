@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class WeatherData {
 
-    //    private int id;
+    private String day;
     private String description;
     private String latitude;
     private String longitude;

@@ -19,7 +19,7 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
     private static final String DATABASE_NAME = BuildConfig.DATABASE_NAME;
@@ -29,6 +29,7 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
 
     // Contacts Table Columns names
     private final String KEY_ID = "id";
+    private final String KEY_DAY = "day";
     private final String KEY_WEATHER_DESCRIPTION = "weatherDescription";
     private final String KEY_LATITUDE = "latitude";
     private final String KEY_LONGITUDE = "longitude";
@@ -36,7 +37,7 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
     private final String KEY_TEMPERATURE = "temperature";
     private final String KEY_WEATHER_ID = "weatherId";
     private final String KEY_WEATHER_ICON = "weatherIcon";
-    private String[] mAllColumns = new String[]{KEY_ID, KEY_WEATHER_DESCRIPTION,
+    private String[] mAllColumns = new String[]{KEY_ID, KEY_DAY, KEY_WEATHER_DESCRIPTION,
             KEY_LATITUDE, KEY_LONGITUDE, KEY_LOCALITY, KEY_TEMPERATURE, KEY_WEATHER_ID,
             KEY_WEATHER_ICON};
 
@@ -48,7 +49,8 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_WEATHER_TABLE = "CREATE TABLE " + TABLE_WEATHER + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," + KEY_WEATHER_DESCRIPTION + " TEXT," + KEY_LATITUDE + " TEXT,"
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," + KEY_DAY + " TEXT,"
+                + KEY_WEATHER_DESCRIPTION + " TEXT," + KEY_LATITUDE + " TEXT,"
                 + KEY_LONGITUDE + " TEXT," + KEY_LOCALITY + " TEXT," + KEY_TEMPERATURE + " TEXT,"
                 + KEY_WEATHER_ID + " INTEGER," + KEY_WEATHER_ICON + " TEXT" + ")";
         db.execSQL(CREATE_WEATHER_TABLE);
