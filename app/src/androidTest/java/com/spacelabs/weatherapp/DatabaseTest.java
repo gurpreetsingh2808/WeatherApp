@@ -21,26 +21,23 @@ public class DatabaseTest {
         weatherDataSource = new WeatherDataSource(InstrumentationRegistry.getTargetContext());
     }
 
-
     @Test
     public void testInsertWeatherData() throws Exception {
-        WeatherData weatherData = new WeatherData(0, "Clear sky", "28.73", "77.13",
+        WeatherData weatherData = new WeatherData("Sunday", "Clear sky", "28.73", "77.13",
                 "Delhi", "15", 800, "01d");
-        if (weatherDataSource.getWeatherData(0) == null) {
-            weatherDataSource.insertWeatherData(weatherData);
-        }
+        weatherDataSource.insertWeatherData(weatherData);
     }
 
     @Test
     public void testGetWeatherData() throws Exception {
-        weatherDataSource.getWeatherData(0);
+        weatherDataSource.getLatestWeatherData();
     }
 
     @Test
     public void testUpdateWeatherData() throws Exception {
-        WeatherData weatherData = new WeatherData(0, "Foggy", "28.73", "77.13",
+        WeatherData weatherData = new WeatherData("Monday", "Foggy", "28.73", "77.13",
                 "Rohini", "15", 800, "01n");
-        weatherDataSource.updateWeatherData(weatherData);
+        weatherDataSource.updateWeatherData(weatherData, 0);
     }
 
     @Test

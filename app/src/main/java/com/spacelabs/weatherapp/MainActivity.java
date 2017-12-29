@@ -30,15 +30,16 @@ import com.google.android.gms.location.LocationServices;
 import com.spacelabs.weatherapp.database.WeatherDataSource;
 import com.spacelabs.weatherapp.domain.WeatherData;
 import com.spacelabs.weatherapp.framework.logger.Logger;
+import com.spacelabs.weatherapp.framework.util.DateUtil;
 import com.spacelabs.weatherapp.framework.util.StringUtil;
 import com.spacelabs.weatherapp.service.api.dto.WeatherDataResponse;
-import com.spacelabs.weatherapp.service.api.dto.WeatherForecastResponse;
 import com.spacelabs.weatherapp.ui.base.BaseActivity;
 import com.spacelabs.weatherapp.ui.main.MainPresenter;
 import com.spacelabs.weatherapp.ui.main.MainPresenterImpl;
-import com.spacelabs.weatherapp.ui.main.WeatherForecastAdapter;
+import com.spacelabs.weatherapp.ui.main.WeatherHistoryAdapter;
 
 import java.io.IOException;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -79,7 +80,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     private String subLocality = null;
     private Boolean isLocationPopupVisible = false;
     private MainPresenterImpl mainPresenterImpl;
-    private WeatherForecastAdapter weatherForecastAdapter;
+    private WeatherHistoryAdapter weatherHistoryAdapter;
     private WeatherDataSource db;
 
     @Override
@@ -108,7 +109,8 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         super.onStart();
         //  wait for some time so that whether gps is enabled or not can be recognized
 //        showLoading();
-        WeatherData weatherData = db.getWeatherData(0);
+        WeatherData weatherData = db.getLatestWeatherData();
+
         if (weatherData == null || isNetworkConnected()) {
             pbWeatherCurrent.setVisibility(View.VISIBLE);
             Handler mHandler = new Handler();
@@ -123,10 +125,11 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         } else {
             populateWeatherData(weatherData.getDescription(), weatherData.getTemperature() + getString(R.string.degree),
                     weatherData.getLocality(), weatherData.getWeatherId(), weatherData.getWeatherIcon());
-            pbWeatherForecast.setVisibility(View.VISIBLE);
-            mainPresenterImpl.getWeatherForecast(weatherData.getLatitude(), weatherData.getLongitude());
-        }
+//            pbWeatherForecast.setVisibility(View.VISIBLE);
 
+        }
+        weatherHistoryAdapter = new WeatherHistoryAdapter(this, db.getAllWeatherData());
+        rvWeatherForecast.setAdapter(weatherHistoryAdapter);
     }
 
 
@@ -226,7 +229,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
      * Creating google api client object
      */
     protected synchronized void buildGoogleApiClient() {
-
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -301,7 +303,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 
                     //  call to api
                     mainPresenterImpl.getWeatherInfo(String.valueOf(latitude), String.valueOf(longitude));
-                    mainPresenterImpl.getWeatherForecast(String.valueOf(latitude), String.valueOf(longitude));
 
                     Geocoder geocoder = new Geocoder(this, Locale.ENGLISH);
                     try {
@@ -334,7 +335,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     void onLocationFabClick() {
         if (mGoogleApiClient.isConnected()) {
             getLocation();
-            pbWeatherForecast.setVisibility(View.VISIBLE);
             pbWeatherCurrent.setVisibility(View.VISIBLE);
         }
     }
@@ -407,16 +407,31 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     }
 
     private void saveToDb(WeatherDataResponse weatherDataResponse) {
-        WeatherData weatherData = new WeatherData(0, weatherDataResponse.getWeather().get(0).getDescription(),
-                String.valueOf(weatherDataResponse.getCoord().getLat()), String.valueOf(weatherDataResponse.getCoord().getLon()),
-                subLocality, String.valueOf(Math.round(weatherDataResponse.getMain().getTemp() - 273.15)),
-                weatherDataResponse.getWeather().get(0).getId(), weatherDataResponse.getWeather().get(0).getIcon());
-        if (db.getWeatherData(0) == null) {
+        GregorianCalendar gregorianCalendar = new GregorianCalendar();
+        DateUtil dateUtil = new DateUtil();
+        long temp = Math.round(weatherDataResponse.getMain().getTemp() - 273.15);
+        String today = dateUtil.getDayName(gregorianCalendar.get(GregorianCalendar.DAY_OF_WEEK));
+        Logger.d("TODAYYYYY " + today);
+        WeatherData weatherData = new WeatherData(today,
+                weatherDataResponse.getWeather().get(0).getDescription(),
+                String.valueOf(weatherDataResponse.getCoord().getLat()),
+                String.valueOf(weatherDataResponse.getCoord().getLon()),
+                subLocality, String.valueOf(temp),
+                weatherDataResponse.getWeather().get(0).getId(),
+                weatherDataResponse.getWeather().get(0).getIcon());
+        if (db.getLatestWeatherData() == null) {
             db.insertWeatherData(weatherData);
+            weatherHistoryAdapter.insert(weatherData);
             Logger.d("SAVE WEATHER DATA");
-        } else {
-            int status = db.updateWeatherData(weatherData);
-            Logger.d("UPDATE STATUS " + status);
+        }
+        // only insert/save data if current temperature is different from last saved temp
+        // and the day of last saved weather data is same as today
+        else if (!(Long.valueOf(db.getLatestWeatherData().getTemperature()) == temp)) {
+            if (!today.equalsIgnoreCase(db.getLatestWeatherData().getDay())) {
+                db.insertWeatherData(weatherData);
+                weatherHistoryAdapter.insert(weatherData);
+                Logger.d("SAVE WEATHER DATA");
+            }
         }
     }
 
@@ -425,20 +440,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         pbWeatherCurrent.setVisibility(View.GONE);
         Logger.e("ERROR " + throwable.fillInStackTrace());
         getSnackbar(getString(R.string.error)).show();
-    }
-
-    @Override
-    public void onWeatherForecastRetreivalSuccess(WeatherForecastResponse weatherForecastResponse) {
-        pbWeatherForecast.setVisibility(View.GONE);
-        weatherForecastAdapter = new WeatherForecastAdapter(this, weatherForecastResponse.getList());
-        rvWeatherForecast.setAdapter(weatherForecastAdapter);
-    }
-
-
-    @Override
-    public void onWeatherForecastRetreivalFailure(Throwable throwable) {
-        pbWeatherForecast.setVisibility(View.GONE);
-        Logger.e("ERROR " + throwable.fillInStackTrace());
     }
 
 }

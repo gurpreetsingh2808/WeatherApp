@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.spacelabs.weatherapp.domain.WeatherData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Gurpreet on 19-12-2017.
  */
@@ -41,7 +44,8 @@ public class WeatherDataSource {
     public void insertWeatherData(WeatherData weatherData) {
         open();
         ContentValues values = new ContentValues();
-        values.put(mDbHelper.getKEY_ID(), 0);
+        values.put(mDbHelper.getKEY_DAY(), weatherData.getDay());
+        values.put(mDbHelper.getKEY_TIMESTAMP(), weatherData.getTimestamp());
         values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
         values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
         values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
@@ -64,20 +68,64 @@ public class WeatherDataSource {
         WeatherData weatherData = null;
         if (cursor != null && cursor.moveToFirst()) {
             cursor.moveToFirst();
-            weatherData = new WeatherData(Integer.parseInt(cursor.getString(0)),
-                    cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4),
-                    cursor.getString(5), Integer.parseInt(cursor.getString(6)), cursor.getString(7));
+            weatherData = new WeatherData(cursor.getString(1),
+                    cursor.getLong(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                    cursor.getString(6), cursor.getString(7), Integer.parseInt(cursor.getString(8)), cursor.getString(9));
             cursor.close();
         }
 
         return weatherData;
     }
 
+    // Getting latest weather data
+    public WeatherData getLatestWeatherData() {
+        read();
+        Cursor cursor = mDatabase.query(mDbHelper.getTABLE_WEATHER(), mDbHelper.getMAllColumns(), null,
+                null, null, null, mDbHelper.getKEY_ID() + " desc", "1");
+        WeatherData weatherData = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            cursor.moveToFirst();
+            weatherData = new WeatherData(cursor.getString(1),
+                    cursor.getLong(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                    cursor.getString(6), cursor.getString(7), Integer.parseInt(cursor.getString(8)), cursor.getString(9));
+            cursor.close();
+        }
+
+        return weatherData;
+    }
+
+
+    // Getting all weather data records
+    public List<WeatherData> getAllWeatherData() {
+        List<WeatherData> listWeatherData = new ArrayList<WeatherData>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + mDbHelper.getTABLE_WEATHER() + " ORDER BY " + mDbHelper.getKEY_ID() + " desc";
+        open();
+        Cursor cursor = mDatabase.rawQuery(selectQuery, null);
+        // looping through all rows and adding to list
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                WeatherData weatherData = new WeatherData(cursor.getString(1),
+                        cursor.getLong(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                        cursor.getString(6), cursor.getString(7), Integer.parseInt(cursor.getString(8)), cursor.getString(9));
+                // Adding weather to list
+                listWeatherData.add(weatherData);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        close();
+        // return weather list
+        return listWeatherData;
+
+
+    }
+
     // Updating single weather data
-    public int updateWeatherData(WeatherData weatherData) {
+    public int updateWeatherData(WeatherData weatherData, int id) {
         open();
         ContentValues values = new ContentValues();
-        values.put(mDbHelper.getKEY_ID(), 0);
+        values.put(mDbHelper.getKEY_DAY(), weatherData.getDay());
+        values.put(mDbHelper.getKEY_TIMESTAMP(), weatherData.getTimestamp());
         values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
         values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
         values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
@@ -87,7 +135,7 @@ public class WeatherDataSource {
         values.put(mDbHelper.getKEY_WEATHER_ICON(), weatherData.getWeatherIcon());
 
         // updating row
-        return mDatabase.update(mDbHelper.getTABLE_WEATHER(), values, mDbHelper.getKEY_ID() + " = ?", new String[]{String.valueOf(weatherData.getId())});
+        return mDatabase.update(mDbHelper.getTABLE_WEATHER(), values, mDbHelper.getKEY_ID() + " = ?", new String[]{String.valueOf(id)});
 
     }
 
