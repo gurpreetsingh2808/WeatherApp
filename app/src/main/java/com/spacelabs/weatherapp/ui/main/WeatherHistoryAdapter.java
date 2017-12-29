@@ -3,6 +3,7 @@ package com.spacelabs.weatherapp.ui.main;
 import android.content.Context;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,7 @@ public class WeatherHistoryAdapter extends RecyclerView.Adapter<WeatherHistoryAd
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.item_weather_forecast, parent, false);
+        View view = inflater.inflate(R.layout.item_weather_history, parent, false);
         return new ViewHolder(view);
     }
 
@@ -55,9 +56,16 @@ public class WeatherHistoryAdapter extends RecyclerView.Adapter<WeatherHistoryAd
         return listWeatherHistory.size();
     }
 
+    public void insert(WeatherData weatherData) {
+        listWeatherHistory.add(weatherData);
+        notifyItemInserted(0);
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tvDay)
         TextView tvDay;
+        @BindView(R.id.tvDuration)
+        TextView tvDuration;
         @BindView(R.id.tvTemperature)
         TextView tvTemperature;
         @BindView(R.id.tvTemperatureDescription)
@@ -72,7 +80,13 @@ public class WeatherHistoryAdapter extends RecyclerView.Adapter<WeatherHistoryAd
 
         private void setData(final WeatherData weatherHistory, int position) {
             Logger.d("DAYYYYY " + weatherHistory.getDay());
-            tvDay.setText(weatherHistory.getDay());
+            if (DateUtils.isToday(weatherHistory.getTimestamp())) {
+                tvDay.setText("Today");
+            } else {
+                tvDay.setText(weatherHistory.getDay());
+            }
+            String duration = DateUtils.getRelativeTimeSpanString(weatherHistory.getTimestamp(), System.currentTimeMillis(), 0).toString();
+            tvDuration.setText(duration);
             tvTemperature.setText(weatherHistory.getTemperature() + context.getString(R.string.degree));
             tvTemperatureDescription.setText(weatherHistory.getDescription());
             ImageLoader.loadImage(context, weatherHistory.getWeatherIcon(), ivWeatherIcon);

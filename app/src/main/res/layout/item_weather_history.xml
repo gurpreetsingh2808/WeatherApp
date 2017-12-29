@@ -10,18 +10,36 @@
         android:layout_width="44dp"
         android:layout_height="match_parent" />
 
-    <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/ivWeatherIcon"
+        android:layout_toLeftOf="@+id/llItemHistoryTemp"
+        android:layout_toRightOf="@+id/ivWeatherIcon"
+        android:layout_toStartOf="@+id/llItemHistoryTemp"
+        android:orientation="vertical">
+
+        <TextView
         android:id="@+id/tvDay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/ivWeatherIcon"
         android:text="@string/Empty"
-        android:textSize="17sp" />
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Empty"
+            android:textSize="12sp" />
+    </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llItemHistoryTemp"
         android:layout_width="90dp"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:gravity="center"
@@ -37,7 +55,6 @@
             android:id="@+id/tvTemperatureDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvTemperature"
             android:text="@string/Empty"
             android:textSize="12sp" />
     </LinearLayout>

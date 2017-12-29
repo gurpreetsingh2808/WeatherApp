@@ -45,6 +45,7 @@ public class WeatherDataSource {
         open();
         ContentValues values = new ContentValues();
         values.put(mDbHelper.getKEY_DAY(), weatherData.getDay());
+        values.put(mDbHelper.getKEY_TIMESTAMP(), weatherData.getTimestamp());
         values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
         values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
         values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());
@@ -68,8 +69,8 @@ public class WeatherDataSource {
         if (cursor != null && cursor.moveToFirst()) {
             cursor.moveToFirst();
             weatherData = new WeatherData(cursor.getString(1),
-                    cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
-                    cursor.getString(6), Integer.parseInt(cursor.getString(7)), cursor.getString(8));
+                    cursor.getLong(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                    cursor.getString(6), cursor.getString(7), Integer.parseInt(cursor.getString(8)), cursor.getString(9));
             cursor.close();
         }
 
@@ -85,8 +86,8 @@ public class WeatherDataSource {
         if (cursor != null && cursor.moveToFirst()) {
             cursor.moveToFirst();
             weatherData = new WeatherData(cursor.getString(1),
-                    cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
-                    cursor.getString(6), Integer.parseInt(cursor.getString(7)), cursor.getString(8));
+                    cursor.getLong(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                    cursor.getString(6), cursor.getString(7), Integer.parseInt(cursor.getString(8)), cursor.getString(9));
             cursor.close();
         }
 
@@ -105,8 +106,8 @@ public class WeatherDataSource {
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 WeatherData weatherData = new WeatherData(cursor.getString(1),
-                        cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
-                        cursor.getString(6), Integer.parseInt(cursor.getString(7)), cursor.getString(8));
+                        cursor.getLong(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                        cursor.getString(6), cursor.getString(7), Integer.parseInt(cursor.getString(8)), cursor.getString(9));
                 // Adding weather to list
                 listWeatherData.add(weatherData);
             } while (cursor.moveToNext());
@@ -124,6 +125,7 @@ public class WeatherDataSource {
         open();
         ContentValues values = new ContentValues();
         values.put(mDbHelper.getKEY_DAY(), weatherData.getDay());
+        values.put(mDbHelper.getKEY_TIMESTAMP(), weatherData.getTimestamp());
         values.put(mDbHelper.getKEY_WEATHER_DESCRIPTION(), weatherData.getDescription());
         values.put(mDbHelper.getKEY_LATITUDE(), weatherData.getLatitude());
         values.put(mDbHelper.getKEY_LONGITUDE(), weatherData.getLongitude());

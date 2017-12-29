@@ -33,11 +33,9 @@ import com.spacelabs.weatherapp.framework.logger.Logger;
 import com.spacelabs.weatherapp.framework.util.DateUtil;
 import com.spacelabs.weatherapp.framework.util.StringUtil;
 import com.spacelabs.weatherapp.service.api.dto.WeatherDataResponse;
-import com.spacelabs.weatherapp.service.api.dto.WeatherForecastResponse;
 import com.spacelabs.weatherapp.ui.base.BaseActivity;
 import com.spacelabs.weatherapp.ui.main.MainPresenter;
 import com.spacelabs.weatherapp.ui.main.MainPresenterImpl;
-import com.spacelabs.weatherapp.ui.main.WeatherForecastAdapter;
 import com.spacelabs.weatherapp.ui.main.WeatherHistoryAdapter;
 
 import java.io.IOException;
@@ -82,7 +80,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     private String subLocality = null;
     private Boolean isLocationPopupVisible = false;
     private MainPresenterImpl mainPresenterImpl;
-    private WeatherForecastAdapter weatherForecastAdapter;
     private WeatherHistoryAdapter weatherHistoryAdapter;
     private WeatherDataSource db;
 
@@ -129,12 +126,10 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
             populateWeatherData(weatherData.getDescription(), weatherData.getTemperature() + getString(R.string.degree),
                     weatherData.getLocality(), weatherData.getWeatherId(), weatherData.getWeatherIcon());
 //            pbWeatherForecast.setVisibility(View.VISIBLE);
-//            mainPresenterImpl.getWeatherForecast(weatherData.getLatitude(), weatherData.getLongitude());
-            weatherHistoryAdapter = new WeatherHistoryAdapter(this, db.getAllWeatherData());
-            rvWeatherForecast.setAdapter(weatherHistoryAdapter);
+
         }
-
-
+        weatherHistoryAdapter = new WeatherHistoryAdapter(this, db.getAllWeatherData());
+        rvWeatherForecast.setAdapter(weatherHistoryAdapter);
     }
 
 
@@ -308,8 +303,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 
                     //  call to api
                     mainPresenterImpl.getWeatherInfo(String.valueOf(latitude), String.valueOf(longitude));
-                    /////////////////////////////////////////////////////////
-//                    mainPresenterImpl.getWeatherForecast(String.valueOf(latitude), String.valueOf(longitude));
 
                     Geocoder geocoder = new Geocoder(this, Locale.ENGLISH);
                     try {
@@ -342,7 +335,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     void onLocationFabClick() {
         if (mGoogleApiClient.isConnected()) {
             getLocation();
-//            pbWeatherForecast.setVisibility(View.VISIBLE);
             pbWeatherCurrent.setVisibility(View.VISIBLE);
         }
     }
@@ -356,9 +348,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 
         Logger.d("SUCCESS");
         saveToDb(weatherDataResponse);
-        weatherHistoryAdapter = new WeatherHistoryAdapter(this, db.getAllWeatherData());
-        rvWeatherForecast.setAdapter(weatherHistoryAdapter);
-
     }
 
     private void populateWeatherData(String weatherDescription, String weatherTemp, String locality, int weatherId, String weatherIcon) {
@@ -432,6 +421,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
                 weatherDataResponse.getWeather().get(0).getIcon());
         if (db.getLatestWeatherData() == null) {
             db.insertWeatherData(weatherData);
+            weatherHistoryAdapter.insert(weatherData);
             Logger.d("SAVE WEATHER DATA");
         }
         // only insert/save data if current temperature is different from last saved temp
@@ -439,6 +429,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         else if (!(Long.valueOf(db.getLatestWeatherData().getTemperature()) == temp)) {
             if (!today.equalsIgnoreCase(db.getLatestWeatherData().getDay())) {
                 db.insertWeatherData(weatherData);
+                weatherHistoryAdapter.insert(weatherData);
                 Logger.d("SAVE WEATHER DATA");
             }
         }
@@ -449,20 +440,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         pbWeatherCurrent.setVisibility(View.GONE);
         Logger.e("ERROR " + throwable.fillInStackTrace());
         getSnackbar(getString(R.string.error)).show();
-    }
-
-    @Override
-    public void onWeatherForecastRetreivalSuccess(WeatherForecastResponse weatherForecastResponse) {
-        pbWeatherForecast.setVisibility(View.GONE);
-        weatherForecastAdapter = new WeatherForecastAdapter(this, weatherForecastResponse.getList());
-        rvWeatherForecast.setAdapter(weatherForecastAdapter);
-    }
-
-
-    @Override
-    public void onWeatherForecastRetreivalFailure(Throwable throwable) {
-        pbWeatherForecast.setVisibility(View.GONE);
-        Logger.e("ERROR " + throwable.fillInStackTrace());
     }
 
 }
