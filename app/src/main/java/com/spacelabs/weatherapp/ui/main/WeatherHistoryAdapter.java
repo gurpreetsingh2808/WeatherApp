@@ -57,8 +57,9 @@ public class WeatherHistoryAdapter extends RecyclerView.Adapter<WeatherHistoryAd
     }
 
     public void insert(WeatherData weatherData) {
-        listWeatherHistory.add(weatherData);
+        listWeatherHistory.add(0, weatherData);
         notifyItemInserted(0);
+
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
